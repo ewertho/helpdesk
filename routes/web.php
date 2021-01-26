@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ProdutoController;
 use PhpParser\Node\Expr\AssignOp\Pow;
-
+use App\Http\Controllers\{
+    PostController
+};
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -15,13 +15,17 @@ use PhpParser\Node\Expr\AssignOp\Pow;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::any('/posts/search', [PostController::class, 'search'])->name('posts.search');
 
-Route::get('/', HomeController::class);
+Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
+Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
 
-Route::get('users/{id}', function ($id) {
-    return "o usuario é: $id";
+Route::get('/posts/{id}', [PostController::class, 'show'])->name('posts.show');
+Route::delete('/posts/{id}', [PostController::class, 'destroy'])->name('posts.destroy');
+Route::get('/posts/edit/{id}',[PostController::class, 'edit'])->name('posts.edit');
+Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update');
+
+Route::get('/', function(){
+    return view('welcome');
 });
-
-Route::get('produtos/inserir', [ProdutoController::class, 'create']);
-Route::get('produtos/{nome}/{valor?}', [ProdutoController::class, 'show']);
-Route::get('produtos', [ProdutoController::class, 'index']);
