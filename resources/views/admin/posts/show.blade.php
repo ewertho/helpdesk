@@ -1,12 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
+@extends('admin.layouts.app')
+@section('title', 'Deletar Posts')
+@section('content')
+
     <h1>Destalhe do Post {{$post->title}}</h1>
     <ul>
         <li>Titulo: {{$post->title}}</li>
@@ -19,5 +14,5 @@
         <input type="hidden" name="_method" value="DELETE">
         <button type="submit">Deletar o Post: {{$post->title}}</button>
     </form>
-</body>
-</html>
+
+@endsection

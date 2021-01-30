@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+@extends('admin.layouts.app')
+@section('title', 'Home')
+@section('content')
+
     <a href="{{route('posts.create')}}">Criar novo post</a>
     <hr>
     @if (session('message'))
@@ -22,16 +18,20 @@
 
     <h1>Posts</h1>
     @foreach($posts as $post)
-        <p>{{$post->title}}  <a href="{{route('posts.show', $post->id)}}">&starf;</a> <a href="{{route('posts.edit', $post->id)}}">Edit</a></p>
+        
+        <p>
+            <img src="{{url("storage/{$post->image}")}}" alt="{{$post->title}}" style="max-width:100px;">
+            {{$post->title}}  <a href="{{route('posts.show', $post->id)}}">&starf;</a> <a href="{{route('posts.edit', $post->id)}}">Edit</a></p>
         <p>{{$post->content}}</p>
         <br>
     @endforeach
-    <hr>
+    
     @if (isset($filters))
+        <hr>
         {{ $posts->appends($filters)->links() }}    
     @else
+        <hr>
         {{ $posts->links() }}
     @endif
-    
-</body>
-</html>
+ 
+@endsection
