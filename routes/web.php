@@ -3,8 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use PhpParser\Node\Expr\AssignOp\Pow;
 use App\Http\Controllers\{
-    PostController
+    PostController,
+    StorageFileController
 };
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -31,11 +33,15 @@ Route::group(['middleware' => ['auth']], function () {
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+    return redirect('/login');
+})->middleware(['auth'])->name('posts.index');
 
 Route::get('/', function(){
-    return view('welcome');
+    return redirect('/login');
 });
+
+
+
+Route::get('image/{filename}', [StorageFileController::class,'getPubliclyStorgeFile'])->name('image.displayImage');
 
 require __DIR__.'/auth.php';

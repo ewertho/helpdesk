@@ -6,7 +6,7 @@
 
     <div class="w-11/12 p-12 bg-white sm:w-8/12 md:w-1/2 1g:w-5/12 mx-auto">
         <form action="{{route('posts.store')}}" method="post" enctype="multipart/form-data">
-            @include('admin.posts._partials.form');
+            @include('admin.posts._partials.form')
         </form>
     </div>
     
