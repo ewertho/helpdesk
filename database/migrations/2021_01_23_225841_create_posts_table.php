@@ -17,7 +17,13 @@ class CreatePostsTable extends Migration
             $table->id();
             $table->string('title', 160)->unique();
             $table->text('content')->nullable();
+            $table->string('image')->nullable();
+            $table->unsignedBigInteger('id_usuario');
             $table->timestamps();
+        });
+
+        Schema::table('posts', function (Blueprint $table) {
+            $table->foreign('id_usuario')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

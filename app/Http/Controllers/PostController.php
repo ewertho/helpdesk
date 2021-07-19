@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUpdatePost;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 
 class PostController extends Controller
@@ -14,8 +16,15 @@ class PostController extends Controller
     public function index(){
         $posts = Post::latest()->paginate();
         //ou orderBy('id', 'Desc')
+        
+        
+        $usuarios = array();
+        foreach($posts as $post){
+            $usuario = User::with('post')->findOrFail($post->id_usuario);
+            array_push($usuarios, $usuario->name);
+        }
 
-        return view('admin.posts.index', compact('posts'));
+        return view('admin.posts.index', compact('posts', 'usuarios'));
         // ou ['posts'=>$posts,]
     }
 
@@ -26,6 +35,7 @@ class PostController extends Controller
 
     public function store(StoreUpdatePost $request){
         $data = $request->all();
+        $data['id_usuario'] = Auth::user()->id;
         if($request->image->isValid()){
             $nameFile = Str::of($request->title)->slug('-').'.'.$request->image->getClientOriginalExtension(); 
             $image = $request->image->storeAs('posts', $nameFile);

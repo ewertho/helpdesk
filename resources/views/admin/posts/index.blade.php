@@ -35,7 +35,9 @@
         </tr>
     </thead>
     <tbody>
-        @foreach ($posts as $post)
+        
+        @foreach ($posts as $key => $post)
+        
             <tr>
                 <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">
                     #{{ $post->id }}
@@ -45,13 +47,14 @@
                 </td>
                 <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">{{ $post->title }}</td>
                 <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">{{ $post->content }}</td>
-                <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">{{ Auth::user()->name }}</td>
+                <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">{{ $usuarios[$key] }}</td>
                 <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5 text-right">
                     <a href="{{ route('posts.show', $post->id) }}" class="px-5 py-2 border-red-500 border text-red-500 rounded transition duration-300 hover:bg-red-700 hover:text-white focus:outline-none">Deletar <i class="fas fa-trash"></i></a>
                     <a href="{{ route('posts.edit', $post->id) }}" class="px-5 py-2 border-green-500 border text-green-500 rounded transition duration-300 hover:bg-green-700 hover:text-white focus:outline-none">Editar <i class="fas fa-pencil-alt"></i></a>
                 </td>
             </tr>
         @endforeach
+        
     </tbody>
 </table>
 
