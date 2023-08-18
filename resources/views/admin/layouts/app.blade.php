@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html lang="{{config('app.locale')}}">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link type="text/css" rel="stylesheet" href="{{ mix('css/app.css') }}">
-    
+
     <title>@yield('title') - {{config('app.name')}}</title>
 </head>
-<body class="bg-gray-50">
+
+<body class=" bg-gray-700">
     <div class="container mx-auto py-8">
         @yield('content')
         <br>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <a href="route('logout')"
-                onclick="event.preventDefault();this.closest('form').submit();">
+            <a href="route('logout')" class=" text-white" onclick="event.preventDefault();this.closest('form').submit();">
                 {{ __('Logout') }}<i class="fas fa-sign-out-alt p-3"></i>
             </a>
         </form>
@@ -24,4 +25,5 @@
         </div>
     </div>
 </body>
+
 </html>

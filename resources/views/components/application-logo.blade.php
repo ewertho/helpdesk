@@ -1,1 +1,1 @@
-<img src="{{url("storage/assets/helpdesklogo.png")}}" alt="" srcset="">
+<img src="{{asset('images/helpdesklogo.png')}}" alt="" srcset="">

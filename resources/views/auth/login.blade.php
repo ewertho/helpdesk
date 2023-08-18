@@ -1,14 +1,14 @@
 <x-guest-layout>
     <x-auth-card>
         <x-slot name="logo">
-            
+
             <a href="/">
-                
-                <img src="{{url("storage/assets/helpdesklogo.png")}}" alt="" srcset="">
+
+                <img src="{{asset('images/hpd.png')}}" alt="" width="400px" srcset="">
             </a>
         </x-slot>
-        
-        
+
+
 
         <!-- Session Status -->
         <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -30,10 +30,7 @@
             <div class="mt-4">
                 <x-label for="password" :value="__('Senha')" />
 
-                <x-input id="password" class="block mt-1 w-full"
-                                type="password"
-                                name="password"
-                                required autocomplete="current-password" />
+                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="current-password" />
             </div>
 
             <!-- Remember Me -->
@@ -46,9 +43,9 @@
 
             <div class="flex items-center justify-between mt-4">
                 @if (Route::has('password.request'))
-                    <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('password.request') }}">
-                        {{ __('Esqueceu a senha?') }}
-                    </a>
+                <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('password.request') }}">
+                    {{ __('Esqueceu a senha?') }}
+                </a>
                 @endif
 
                 <x-button class="ml-3">
@@ -58,9 +55,9 @@
 
             <div class="flex items-center justify-center mt-4">
                 @if (Route::has('register'))
-                    <a class=" text-sm text-gray-600 hover:text-gray-900" href="{{ route('register') }}">
-                        {{ __('Não tem login? Cadastre-se!') }}
-                    </a>
+                <a class=" text-sm text-gray-600 hover:text-gray-900" href="{{ route('register') }}">
+                    {{ __('Não tem login? Cadastre-se!') }}
+                </a>
                 @endif
 
             </div>
