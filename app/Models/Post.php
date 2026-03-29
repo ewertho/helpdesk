@@ -11,5 +11,13 @@ class Post extends Model
 
     protected $table = 'posts';
 
-    protected $fillable = ['title','content','image','id_usuario'];
+    protected $fillable = ['title', 'content', 'image', 'id_usuario'];
+
+    /**
+     * Get the user that owns the post.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_usuario');
+    }
 }

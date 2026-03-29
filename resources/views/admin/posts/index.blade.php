@@ -1,71 +1,139 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Listagem dos Posts')
+@section('title', 'Lista de Chamados')
 
 @section('content')
 
-<h1 class="text-center text-3xl text-white uppercase my-4">Listagem de Chamados</h1>
+<div class="flex flex-col md:flex-row justify-between items-center mb-8">
+    <div>
+        <h2 class="text-3xl font-bold text-white mb-1">Painel de Chamados</h2>
+        <p class="text-slate-400 text-sm">Gerencie e responda as solicitações de suporte</p>
+    </div>
 
-<div class="flex bg-white justify-between p-4">
-    <a href="{{ route('posts.create') }}" class="my-4 uppercase px-8 p-3 rounded bg-green-600 text-blue-50 max-w-max shadow-sm hover:shadow-lg">Criar Chamado</a>
-    <form action="{{ route('posts.search') }}" method="post" class="">
-        @csrf
-        <div class="max-w-sm my-4 p-1 pr-0 items-center justify-between">
-            <input type="text" name="search" placeholder="Filtrar:" class="flex-1 appearance-none rounded shadow p-3 text-grey-dark mr-2 focus:outline-none">
-            <button type="submit" class="uppercase p-3 rounded bg-blue-500 text-blue-50 max-w-max shadow-sm hover:shadow-lg"><i class="fas fa-search"></i></button>
-        </div>
-    </form>
+    <div class="mt-4 md:mt-0 flex gap-4 w-full md:w-auto">
+        <form action="{{ route('posts.search') }}" method="post" class="relative flex-1 md:w-64">
+            @csrf
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fas fa-search text-slate-400"></i>
+            </div>
+            <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Pesquisar chamado..." required
+                   class="w-full pl-10 pr-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder-slate-500">
+        </form>
+        
+        <a href="{{ route('posts.create') }}" class="flex-shrink-0 inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-primary to-secondary text-white font-medium rounded-lg shadow-lg shadow-primary/30 hover:opacity-90 transform transition hover:-translate-y-0.5">
+            <i class="fas fa-plus mr-2"></i> Novo
+        </a>
+    </div>
 </div>
+
 @if (session('message'))
-<div class="flex justify-center items-center m-1 font-medium py-1 px-2 bg-white rounded-md text-green-700 bg-green-100 border border-green-300 ">
-    {{ session('message') }}
+<div class="mb-6 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-start fade-in">
+    <div class="flex-shrink-0">
+        <i class="fas fa-check-circle text-emerald-400 mt-0.5"></i>
+    </div>
+    <div class="ml-3">
+        <p class="text-sm font-medium text-emerald-400">{{ session('message') }}</p>
+    </div>
 </div>
 @endif
 
+@if (session('error'))
+<div class="mb-6 p-4 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-start fade-in">
+    <div class="flex-shrink-0">
+        <i class="fas fa-exclamation-circle text-rose-400 mt-0.5"></i>
+    </div>
+    <div class="ml-3">
+        <p class="text-sm font-medium text-rose-400">{{ session('error') }}</p>
+    </div>
+</div>
+@endif
 
+<div class="glass rounded-xl border border-slate-700/50 overflow-hidden shadow-2xl">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-slate-800/80 border-b border-slate-700/50 text-xs uppercase tracking-wider text-slate-400 font-semibold">
+                    <th class="px-6 py-4 rounded-tl-xl w-24">Ticket</th>
+                    <th class="px-6 py-4">Assunto</th>
+                    <th class="px-6 py-4">Requisitante</th>
+                    <th class="px-6 py-4 text-center">Status</th>
+                    <th class="px-6 py-4 text-right rounded-tr-xl">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-700/50 text-sm">
+                @forelse ($posts as $post)
+                <tr class="hover:bg-slate-700/30 transition-colors group">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="font-mono font-medium text-primary bg-primary/10 px-2 py-1 rounded-md">#{{ str_pad($post->id, 4, '0', STR_PAD_LEFT) }}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            @if($post->image)
+                            <div class="h-10 w-10 flex-shrink-0 rounded-lg overflow-hidden bg-slate-800 border border-slate-600 mr-3">
+                                <img src="{{ route('image.displayImage', ['filename' => basename($post->image)]) }}" alt="Anexo" class="h-full w-full object-cover">
+                            </div>
+                            @else
+                            <div class="h-10 w-10 flex-shrink-0 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center mr-3 text-slate-500">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            @endif
+                            <div>
+                                <h3 class="font-medium text-white group-hover:text-primary transition-colors line-clamp-1">{{ $post->title }}</h3>
+                                <p class="text-slate-400 text-xs mt-0.5 line-clamp-1 truncate w-48 lg:w-96">{{ $post->content }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center text-slate-300">
+                            <i class="fas fa-user-circle text-slate-500 mr-2"></i>
+                            {{ $post->user->name ?? 'Sistema' }}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                            Pendente
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex items-center justify-end space-x-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                            <a href="{{ route('posts.show', $post->id) }}" class="p-2 text-primary hover:bg-primary/20 rounded-lg transition-colors tooltip" title="Detalhes">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ route('posts.edit', $post->id) }}" class="p-2 text-emerald-400 hover:bg-emerald-400/20 rounded-lg transition-colors tooltip" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{{ route('posts.destroy', $post->id) }}" method="POST" class="inline" onsubmit="return confirm('Deseja realmente deletar este chamado?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="p-2 text-rose-400 hover:bg-rose-400/20 rounded-lg transition-colors tooltip" title="Excluir">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center">
+                        <div class="inline-flex flex-col items-center justify-center">
+                            <i class="fas fa-inbox text-5xl text-slate-600 mb-4"></i>
+                            <h3 class="text-lg font-medium text-white mb-1">Nenhum chamado encontrado</h3>
+                            <p class="text-slate-400 mb-4 text-sm">Os chamados criados aparecerão aqui.</p>
+                            <a href="{{ route('posts.create') }}" class="text-primary hover:text-white transition-colors text-sm font-medium">Criar seu primeiro chamado &rarr;</a>
+                        </div>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
 
-<table class="min-w-full bg-white">
-    <thead>
-        <tr>
-            <th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">ID</th>
-            <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider">Imagem</th>
-            <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider">Nome</th>
-            <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider">Conteudo</th>
-            <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider">Usuario</th>
-            <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider"></th>
-        </tr>
-    </thead>
-    <tbody>
-
-        @foreach ($posts as $key => $post)
-
-        <tr>
-            <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">
-                #{{ $post->id }}
-            </td>
-            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                <img src="{{ url("storage/{$post->image}") }}" alt="{{ $post->title }}" class="w-16">
-            </td>
-            <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">{{ $post->title }}</td>
-            <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">{{ $post->content }}</td>
-            <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">{{ $usuarios[$key] }}</td>
-            <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5 text-right">
-                <a href="{{ route('posts.show', $post->id) }}" class="px-5 py-2 border-red-500 border text-red-500 rounded transition duration-300 hover:bg-red-700 hover:text-white focus:outline-none">Deletar <i class="fas fa-trash"></i></a>
-                <a href="{{ route('posts.edit', $post->id) }}" class="px-5 py-2 border-green-500 border text-green-500 rounded transition duration-300 hover:bg-green-700 hover:text-white focus:outline-none">Editar <i class="fas fa-pencil-alt"></i></a>
-            </td>
-        </tr>
-        @endforeach
-
-    </tbody>
-</table>
-
-
-
-<div class="my-4">
+<div class="mt-6 flex justify-end">
     @if (isset($filters))
-    {{ $posts->appends($filters)->links() }}
+        {{ $posts->appends($filters)->links('pagination::tailwind') }}
     @else
-    {{ $posts->links() }}
+        {{ $posts->links('pagination::tailwind') }}
     @endif
 </div>
 

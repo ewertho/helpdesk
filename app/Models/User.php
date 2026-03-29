@@ -42,7 +42,7 @@ class User extends Authenticatable
     ];
 
     
-    public function post()
+    public function posts()
     {
         return $this->hasMany(Post::class, 'id_usuario', 'id');
     }

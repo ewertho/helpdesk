@@ -2,33 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreUpdatePost;
-use App\Models\Post;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
-
-class PostController extends Controller
+class StorageFileController extends Controller
 {
+    public function getPubliclyStorgeFile($filename)
+    {
+        $path = 'posts/' . $filename;
 
-public function getPubliclyStorgeFile($filename)
+        if (!Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
 
-{
-    $path = storage_path('app/public/image/'. $filename);
-
-    if (!File::exists($path)) {
-        abort(404);
+        return Storage::disk('public')->response($path);
     }
-
-    $file = File::get($path);
-    $type = File::mimeType($path);
-
-    $response = Response::make($file, 200);
-
-    $response->header("Content-Type", $type);
-
-    return $response;
-
-}
-}
+}
