@@ -3,6 +3,7 @@
 @section('page-class', 'page-narrow')
 
 @section('content')
+    <a class="back" href="{{ route('tickets.index') }}">Chamados</a>
     <h1>Abrir chamado</h1>
 
     <form class="sheet form" method="post" action="{{ route('tickets.store') }}" enctype="multipart/form-data">
@@ -44,7 +45,7 @@
 
         <div class="form-actions">
             <a href="{{ route('tickets.index') }}">Cancelar</a>
-            <button class="btn">Abrir chamado</button>
+            <button class="btn"><x-icon name="send" /> Abrir chamado</button>
         </div>
     </form>
 @endsection

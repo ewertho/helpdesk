@@ -20,4 +20,15 @@ enum Category: string
             self::Other => 'Outros',
         };
     }
+
+    public function icon(): string
+    {
+        return match ($this) {
+            self::Access => 'key',
+            self::Hardware => 'monitor',
+            self::Software => 'window',
+            self::Network => 'wifi',
+            self::Other => 'help',
+        };
+    }
 }

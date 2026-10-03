@@ -19,6 +19,16 @@ enum Priority: string
         };
     }
 
+    public function icon(): string
+    {
+        return match ($this) {
+            self::Low => 'down',
+            self::Normal => 'equal',
+            self::High => 'up',
+            self::Urgent => 'flame',
+        };
+    }
+
     /** Prazo de solução. ponytail: horas corridas; trocar por calendário comercial se o SLA exigir. */
     public function slaHours(): int
     {

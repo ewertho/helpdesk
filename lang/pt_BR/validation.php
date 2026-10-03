@@ -8,6 +8,8 @@ return [
     'unique' => 'Este :attribute já está em uso.',
     'confirmed' => 'A confirmação de :attribute não confere.',
     'exists' => 'O valor escolhido para :attribute não existe.',
+    'integer' => 'O campo :attribute precisa ser um número inteiro.',
+    'between' => ['numeric' => 'O campo :attribute precisa estar entre :min e :max.'],
     'enum' => 'O valor escolhido para :attribute não é válido.',
     'file' => 'O campo :attribute precisa ser um arquivo.',
     'mimes' => 'O :attribute precisa ser do tipo: :values.',
@@ -33,6 +35,9 @@ return [
         'attachment' => 'anexo',
         'body' => 'resposta',
         'role' => 'papel',
+        'rating' => 'nota',
+        'rating_comment' => 'comentário',
+        'title' => 'título',
         'assignee_id' => 'responsável',
     ],
 ];

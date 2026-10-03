@@ -19,6 +19,12 @@ class TicketPolicy
         return $user->isStaff() || ($ticket->requester_id === $user->id && $to->isDone());
     }
 
+    /** Só quem abriu avalia, uma única vez, e só depois de resolvido. */
+    public function rate(User $user, Ticket $ticket): bool
+    {
+        return $ticket->requester_id === $user->id && $ticket->status->isDone() && $ticket->rating === null;
+    }
+
     public function reply(User $user, Ticket $ticket): bool
     {
         return $this->view($user, $ticket) && $ticket->status !== Status::Closed;

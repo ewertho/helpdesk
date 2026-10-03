@@ -39,8 +39,10 @@ class Ticket extends Model
     {
         // O prazo nasce com o chamado e acompanha a prioridade.
         static::saving(function (Ticket $ticket) {
+            // Fixa a data de criação antes de derivar o prazo: os dois partem do mesmo instante.
+            $ticket->created_at ??= $ticket->freshTimestamp();
             if (! $ticket->exists || $ticket->isDirty('priority')) {
-                $ticket->due_at = ($ticket->created_at ?? now())->copy()->addHours($ticket->priority->slaHours());
+                $ticket->due_at = $ticket->created_at->copy()->addHours($ticket->priority->slaHours());
             }
         });
     }
@@ -173,6 +175,24 @@ class Ticket extends Model
 
             return $comment;
         });
+    }
+
+    /** Avaliação do atendimento (CSAT): uma nota por chamado, dada por quem abriu, depois de resolvido. */
+    public function rate(int $rating, ?string $comment, User $by): void
+    {
+        $this->rating = $rating;
+        $this->rating_comment = $comment;
+        $this->save();
+        $this->log($by, "avaliou o atendimento com nota {$rating} de 5");
+    }
+
+    /** Fração do prazo já consumida, de 0 a 1, para a barra de SLA. */
+    public function slaProgress(): float
+    {
+        $total = $this->created_at->diffInSeconds($this->due_at);
+        $spent = $this->created_at->diffInSeconds($this->resolved_at ?? now());
+
+        return $total > 0 ? min(1, max(0, $spent / $total)) : 1;
     }
 
     private function log(User $by, string $event): void

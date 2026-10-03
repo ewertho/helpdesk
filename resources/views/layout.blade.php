@@ -6,34 +6,47 @@
     <title>@yield('title', 'Chamados') · Helpdesk</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ filemtime(public_path('css/app.css')) }}">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231b3bd0'/%3E%3Cpath d='M9 8v16M23 8v16M9 16h14' stroke='%23ffcf33' stroke-width='4'/%3E%3C/svg%3E">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231b3bd0'/%3E%3Cpath d='M7 12a4 4 0 0 1 0 8v3h18v-3a4 4 0 0 1 0-8V9H7z' fill='%23ffcf33'/%3E%3C/svg%3E">
 </head>
-<body>
-<header class="band">
-    <a class="wordmark" href="{{ url('/') }}">Helpdesk</a>
-    @auth
+<body class="@auth app @else guest @endauth">
+@auth
+    <aside class="rail">
+        <a class="brand" href="{{ url('/') }}">
+            <span class="brand-mark"><x-icon name="ticket" /></span>
+            Helpdesk
+        </a>
+
         <nav aria-label="Principal">
-            <a href="{{ route('tickets.index') }}" @if (request()->routeIs('tickets.*')) aria-current="page" @endif>Chamados</a>
+            @can('staff')
+                <a href="{{ route('dashboard') }}" @if (request()->routeIs('dashboard')) aria-current="page" @endif><x-icon name="dashboard" /> Painel</a>
+            @endcan
+            <a href="{{ route('tickets.index') }}" @if (request()->routeIs('tickets.*')) aria-current="page" @endif><x-icon name="inbox" /> Chamados</a>
+            @can('staff')
+                <a href="{{ route('canned.index') }}" @if (request()->routeIs('canned.*')) aria-current="page" @endif><x-icon name="zap" /> Respostas prontas</a>
+            @endcan
             @can('admin')
-                <a href="{{ route('users.index') }}" @if (request()->routeIs('users.*')) aria-current="page" @endif>Usuários</a>
+                <a href="{{ route('users.index') }}" @if (request()->routeIs('users.*')) aria-current="page" @endif><x-icon name="users" /> Usuários</a>
             @endcan
         </nav>
-        <div class="band-end">
+
+        <a class="btn-signal rail-cta" href="{{ route('tickets.create') }}"><x-icon name="plus" /> Abrir chamado</a>
+
+        <div class="rail-user">
+            <x-avatar :user="auth()->user()" />
             <span class="who">{{ auth()->user()->name }}<small>{{ auth()->user()->role->label() }}</small></span>
             <form method="post" action="{{ route('logout') }}">
                 @csrf
-                <button class="btn-plain">Sair</button>
+                <button class="icon-btn" title="Sair" aria-label="Sair"><x-icon name="logout" /></button>
             </form>
-            <a class="btn-signal" href="{{ route('tickets.create') }}">Abrir chamado</a>
         </div>
-    @endauth
-</header>
+    </aside>
+@endauth
 
 <main class="page @yield('page-class')">
     @if (session('status'))
-        <p class="flash" role="status">{{ session('status') }}</p>
+        <p class="flash" role="status"><x-icon name="check" /> {{ session('status') }}</p>
     @endif
     @if ($errors->any())
         <ul class="flash flash-error" role="alert">

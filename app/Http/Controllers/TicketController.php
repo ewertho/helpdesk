@@ -6,6 +6,7 @@ use App\Enums\Category;
 use App\Enums\Priority;
 use App\Enums\Role;
 use App\Enums\Status;
+use App\Models\CannedReply;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -101,6 +102,7 @@ class TicketController extends Controller
             'ticket' => $ticket->load('requester', 'assignee'),
             // Nota interna nunca chega à tela do cliente.
             'comments' => $ticket->comments()->with('user')->when(! $staff, fn ($q) => $q->where('internal', false))->get(),
+            'canned' => $staff ? CannedReply::orderBy('title')->get() : collect(),
             'agents' => $staff ? User::whereIn('role', [Role::Agent, Role::Admin])->orderBy('name')->get() : collect(),
         ]);
     }
@@ -144,6 +146,19 @@ class TicketController extends Controller
         $ticket->reply($request->user(), $data['body'], $internal);
 
         return back()->with('status', $internal ? 'Nota interna adicionada.' : 'Resposta enviada.');
+    }
+
+    public function rate(Request $request, Ticket $ticket): RedirectResponse
+    {
+        Gate::authorize('rate', $ticket);
+
+        $data = $request->validate([
+            'rating' => ['required', 'integer', 'between:1,5'],
+            'rating_comment' => ['nullable', 'string', 'max:500'],
+        ]);
+        $ticket->rate((int) $data['rating'], $data['rating_comment'] ?? null, $request->user());
+
+        return back()->with('status', 'Obrigado pela avaliação.');
     }
 
     public function attachment(Ticket $ticket): StreamedResponse

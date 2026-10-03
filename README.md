@@ -8,6 +8,9 @@ Sistema de chamados com fila por prazo, papéis e histórico completo de cada at
 - **SLA por prioridade** (urgente 4h, alta 8h, normal 24h, baixa 72h): o prazo nasce com o chamado, acompanha a mudança de prioridade e a fila mostra o que está em risco ou vencido.
 - **Fluxo de status com regras**: aberto, em atendimento, aguardando cliente, resolvido, encerrado. Só as transições válidas existem, e a tela só oferece o próximo passo que o usuário pode dar.
 - **Responder move o chamado**: a primeira resposta da equipe assume o chamado e marca o tempo de primeira resposta; a resposta do cliente devolve a bola para a equipe e reabre um chamado resolvido.
+- **Painel da equipe**: chamados em andamento, fora do prazo e sem responsável, percentual resolvido no prazo, tempo médio até a primeira resposta, satisfação, distribuição por status e categoria, carga por atendente.
+- **Avaliação do atendimento**: quem abriu dá uma nota de 1 a 5 depois de resolvido, uma única vez.
+- **Respostas prontas**: textos que a equipe insere com um clique ao responder.
 - **Notas internas** visíveis só para a equipe.
 - **Papéis**: cliente vê os próprios chamados; atendente vê e trabalha todos; administrador também define papéis.
 - **Histórico auditável**: cada mudança de status, prioridade e responsável vira uma linha na conversa.
@@ -19,8 +22,8 @@ Sistema de chamados com fila por prazo, papéis e histórico completo de cada at
 | Aplicação | Laravel 13, PHP 8.5, Blade |
 | Servidor | FrankenPHP (Caddy embutido), um container |
 | Banco | SQLite em volume |
-| Interface | CSS escrito à mão, sem etapa de build de front-end |
-| Testes | PHPUnit 12, 16 testes de regra de negócio e autorização |
+| Interface | CSS escrito à mão, sem etapa de build: View Transitions entre páginas (o número do chamado viaja da lista para o detalhe), ícones SVG em componente Blade |
+| Testes | PHPUnit 12, 19 testes de regra de negócio, autorização e indicadores |
 
 ## Decisões
 

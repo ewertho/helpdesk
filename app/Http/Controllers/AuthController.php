@@ -23,7 +23,7 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('tickets.index'));
+        return redirect()->intended(route($request->user()->isStaff() ? 'dashboard' : 'tickets.index'));
     }
 
     public function register(Request $request): RedirectResponse

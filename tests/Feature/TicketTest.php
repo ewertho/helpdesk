@@ -194,6 +194,50 @@ class TicketTest extends TestCase
         $this->assertSame(Role::Agent, $this->customer->fresh()->role);
     }
 
+    public function test_so_quem_abriu_avalia_uma_vez_e_depois_de_resolvido(): void
+    {
+        $rate = fn (User $as, array $data = ['rating' => 5]) => $this->actingAs($as)->post(route('tickets.rate', $this->ticket), $data);
+
+        $rate($this->customer)->assertForbidden(); // ainda em aberto
+        $this->ticket->changeStatus(Status::Resolved, $this->agent);
+
+        $rate($this->agent)->assertForbidden();
+        $rate($this->customer, ['rating' => 9])->assertSessionHasErrors('rating');
+        $rate($this->customer, ['rating' => 4, 'rating_comment' => 'Resolveu rápido'])->assertSessionHasNoErrors();
+        $rate($this->customer)->assertForbidden(); // já avaliou
+
+        $this->assertSame(4, $this->ticket->fresh()->rating);
+    }
+
+    public function test_painel_e_respostas_prontas_sao_so_da_equipe(): void
+    {
+        $this->actingAs($this->customer)->get(route('dashboard'))->assertForbidden();
+        $this->actingAs($this->customer)->post(route('canned.store'), ['title' => 'x', 'body' => 'y'])->assertForbidden();
+
+        $this->actingAs($this->agent)->post(route('canned.store'), ['title' => 'Saudação', 'body' => 'Olá, tudo bem?'])->assertSessionHasNoErrors();
+        $this->actingAs($this->agent)->get(route('tickets.show', $this->ticket))->assertSee('Saudação');
+        $this->actingAs($this->customer)->get(route('tickets.show', $this->ticket))->assertDontSee('Saudação');
+    }
+
+    public function test_painel_calcula_prazo_cumprido_primeira_resposta_e_satisfacao(): void
+    {
+        $this->travel(30)->minutes();
+        $this->ticket->reply($this->agent, 'Vou verificar.');
+        $this->ticket->changeStatus(Status::Resolved, $this->agent);
+        $this->ticket->rate(4, null, $this->customer);
+
+        $atrasado = Ticket::factory()->create();
+        $this->travel(30)->hours();
+        $atrasado->changeStatus(Status::Resolved, $this->agent);
+
+        $this->actingAs($this->agent)->get(route('dashboard'))
+            ->assertOk()
+            ->assertViewHas('slaRate', 50)
+            ->assertViewHas('firstResponse', 30.0)
+            ->assertViewHas('csat', 4.0)
+            ->assertViewHas('resolvedWeek', 2);
+    }
+
     public function test_visitante_e_mandado_para_o_login(): void
     {
         $this->get(route('tickets.index'))->assertRedirect(route('login'));
