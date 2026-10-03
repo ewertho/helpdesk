@@ -1,62 +1,53 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Helpdesk
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema de chamados com fila por prazo, papéis e histórico completo de cada atendimento.
 
-## About Laravel
+## O que faz
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Chamados** com categoria, urgência, anexo e número próprio.
+- **SLA por prioridade** (urgente 4h, alta 8h, normal 24h, baixa 72h): o prazo nasce com o chamado, acompanha a mudança de prioridade e a fila mostra o que está em risco ou vencido.
+- **Fluxo de status com regras**: aberto, em atendimento, aguardando cliente, resolvido, encerrado. Só as transições válidas existem, e a tela só oferece o próximo passo que o usuário pode dar.
+- **Responder move o chamado**: a primeira resposta da equipe assume o chamado e marca o tempo de primeira resposta; a resposta do cliente devolve a bola para a equipe e reabre um chamado resolvido.
+- **Notas internas** visíveis só para a equipe.
+- **Papéis**: cliente vê os próprios chamados; atendente vê e trabalha todos; administrador também define papéis.
+- **Histórico auditável**: cada mudança de status, prioridade e responsável vira uma linha na conversa.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| | |
+|---|---|
+| Aplicação | Laravel 13, PHP 8.5, Blade |
+| Servidor | FrankenPHP (Caddy embutido), um container |
+| Banco | SQLite em volume |
+| Interface | CSS escrito à mão, sem etapa de build de front-end |
+| Testes | PHPUnit 12, 16 testes de regra de negócio e autorização |
 
-## Learning Laravel
+## Decisões
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **As regras moram no domínio.** [`Ticket`](app/Models/Ticket.php) e [`Status`](app/Enums/Status.php) concentram fluxo, SLA e efeitos de uma resposta; os controllers só validam e autorizam.
+- **Autorização em um lugar só**: [`TicketPolicy`](app/Policies/TicketPolicy.php) e um escopo `visibleTo` que toda consulta de chamados atravessa.
+- **Anexos em disco privado**, com nome gerado e tipo restrito, servidos por rota autorizada. Nada de arquivo de usuário em pasta pública.
+- **`role` fora do `fillable`**: ninguém se promove pelo formulário de cadastro. O administrador não pode alterar o próprio papel, para não trancar o painel.
+- Login e cadastro com limite de tentativas; modo estrito do Eloquent em desenvolvimento (N+1 vira erro).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Rodando
 
-## Laravel Sponsors
+```bash
+docker compose up -d --build
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Sobe em `http://localhost:8102` já migrado e com dados de demonstração. Contas (senha `password`):
 
-### Premium Partners
+| Papel | E-mail |
+|---|---|
+| Cliente | cliente@helpdesk.test |
+| Atendente | agente@helpdesk.test |
+| Administrador | admin@helpdesk.test |
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/)**
-- **[OP.GG](https://op.gg)**
+Para um ambiente real, defina `APP_DEMO=false`, `APP_URL` e, se quiser controlar a chave, `APP_KEY` (sem ela, uma é gerada e guardada no volume).
 
-## Contributing
+## Testes
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+docker run --rm -v "$PWD:/app" -w /app php:8.5-cli php artisan test
+```

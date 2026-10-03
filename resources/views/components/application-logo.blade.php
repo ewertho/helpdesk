@@ -1,1 +1,0 @@
-<img src="{{asset('images/helpdesklogo.png')}}" alt="" srcset="">

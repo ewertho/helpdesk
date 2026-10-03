@@ -2,28 +2,19 @@
 
 namespace App\Providers;
 
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
-    public function register()
+    public function boot(): void
     {
-        //
-    }
+        // Em dev, N+1 e atributo fora do fillable viram erro em vez de bug silencioso.
+        Model::shouldBeStrict(! $this->app->isProduction());
 
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        Schema::defaultStringLength(191);
+        Gate::define('staff', fn (User $user) => $user->isStaff());
+        Gate::define('admin', fn (User $user) => $user->isAdmin());
     }
 }
