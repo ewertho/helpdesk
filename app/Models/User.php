@@ -2,48 +2,38 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\Role;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
+// role fica fora do fillable de propósito: ninguém se promove pelo formulário de cadastro.
+#[Fillable(['name', 'email', 'password'])]
+#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    /** @use HasFactory<UserFactory> */
+    use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    protected $attributes = ['role' => 'customer'];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-
-    
-    public function posts()
+    protected function casts(): array
     {
-        return $this->hasMany(Post::class, 'id_usuario', 'id');
+        return [
+            'password' => 'hashed',
+            'role' => Role::class,
+        ];
+    }
+
+    public function isStaff(): bool
+    {
+        return $this->role !== Role::Customer;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === Role::Admin;
     }
 }

@@ -1,43 +1,38 @@
-
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CannedReplyController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TicketController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{
-    PostController,
-    StorageFileController
-};
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-
-Route::get('/', function () {
-    return redirect()->route('login');
+Route::middleware('guest')->group(function () {
+    Route::view('/login', 'auth.login')->name('login');
+    Route::view('/register', 'auth.register')->name('register');
+    // Limite por minuto contra força bruta de senha e cadastro em massa.
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1');
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1');
 });
 
-Route::get('/dashboard', function () {
-    return redirect()->route('posts.index');
-})->middleware(['auth'])->name('dashboard');
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::redirect('/', '/tickets');
 
-Route::middleware(['auth'])->group(function () {
-    // Posts Routes
-    Route::any('/posts/search', [PostController::class, 'search'])->name('posts.search');
-    Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
-    Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
-    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
-    Route::get('/posts/{id}', [PostController::class, 'show'])->name('posts.show');
-    Route::delete('/posts/{id}', [PostController::class, 'destroy'])->name('posts.destroy');
-    Route::get('/posts/edit/{id}', [PostController::class, 'edit'])->name('posts.edit');
-    Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update');    
+    Route::resource('tickets', TicketController::class)->only(['index', 'create', 'store', 'show', 'update']);
+    Route::post('/tickets/{ticket}/reply', [TicketController::class, 'reply'])->name('tickets.reply');
+    Route::post('/tickets/{ticket}/rating', [TicketController::class, 'rate'])->name('tickets.rate');
+    Route::get('/tickets/{ticket}/attachment', [TicketController::class, 'attachment'])->name('tickets.attachment');
+
+    Route::middleware('can:staff')->group(function () {
+        Route::get('/painel', DashboardController::class)->name('dashboard');
+        Route::get('/respostas', [CannedReplyController::class, 'index'])->name('canned.index');
+        Route::post('/respostas', [CannedReplyController::class, 'store'])->name('canned.store');
+        Route::delete('/respostas/{reply}', [CannedReplyController::class, 'destroy'])->name('canned.destroy');
+    });
+
+    Route::middleware('can:admin')->group(function () {
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    });
 });
-
-Route::get('image/{filename}', [StorageFileController::class, 'getPubliclyStorgeFile'])->name('image.displayImage');
-
-require __DIR__.'/auth.php';
